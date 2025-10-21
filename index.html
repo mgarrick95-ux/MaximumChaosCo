@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<link rel="manifest" href="manifest.webmanifest"/>
+<link rel="icon" href="icon-192.png" sizes="192x192"/>
+<meta name="theme-color" content="#6d28d9"/>
+<title>Brain Fog Buster • MaximumChaosCo</title>
+<style>
+  :root{
+    --bg:#0f1025; --paper:#11142a; --ink:#f8fafc; --muted:#cbd5e1;
+    --accent:#6d28d9; --accent2:#f472b6; --ok:#10b981; --warn:#f59e0b;
+    --ring:#a78bfa; --card:#15183a; --edge:#ffffff20;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;color:var(--ink);background:var(--bg);}
+  .wrap{max-width:1100px;margin:0 auto;padding:16px;position:relative;min-height:100%}
+  header{display:flex;align-items:center;gap:12px;justify-content:space-between;margin-bottom:12px}
+  h1{margin:0;font-size:1.25rem;letter-spacing:.3px;display:flex;align-items:center;gap:10px}
+  h1 img{width:34px;height:34px;border-radius:8px;box-shadow:0 2px 8px #0008}
+  .brand{font-weight:700}
+  .sub{color:var(--muted);font-size:.92rem}
+
+  .bg-blobs::before, .bg-blobs::after{
+    content:""; position:fixed; inset:auto -10% -10% -10%; height:60vh; z-index:-2;
+    background: radial-gradient(40% 40% at 30% 30%, #f472b633 0%, #0000 60%),
+                radial-gradient(35% 35% at 70% 20%, #60a5fa33 0%, #0000 60%),
+                radial-gradient(45% 45% at 20% 80%, #34d39933 0%, #0000 60%),
+                radial-gradient(35% 35% at 80% 80%, #fbbf2433 0%, #0000 60%);
+    filter: blur(22px) saturate(1.2);
+  }
+  .pane{background:var(--card); border:1px solid var(--edge); border-radius:16px; padding:12px; box-shadow: 0 10px 40px #0006; position:relative; overflow:hidden}
+  .pane::after{content:""; position:absolute; inset:0; pointer-events:none;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.04"/></svg>');
+    mix-blend-mode:overlay;
+  }
+  .grid{display:grid; gap:12px}
+  @media(min-width:860px){ .grid{ grid-template-columns: 1.2fr 1fr; } }
+  label{display:block; color:var(--muted); font-size:.85rem; margin-bottom:6px}
+  input[type=text], textarea{ width:100%; background:var(--paper); border:1px solid var(--edge); color:var(--ink); padding:10px; border-radius:10px; }
+  textarea{ min-height:140px; resize:vertical }
+  .btn{appearance:none; border:1px solid var(--edge); background:linear-gradient(180deg, #ffffff12, #00000018); color:var(--ink);
+       padding:8px 12px; border-radius:12px; font-size:.95rem; cursor:pointer; box-shadow:0 4px 20px #0005; }
+  .btn.primary{background:linear-gradient(180deg, #8b5cf6, #6d28d9); border-color:#6d28d9}
+  .btn.small{padding:6px 10px; font-size:.9rem}
+  .inline{display:flex; gap:8px; flex-wrap:wrap; align-items:center}
+  .list{display:grid; gap:8px; margin-top:10px}
+  .item{display:flex; gap:10px; align-items:center; background:var(--paper); border:1px dashed var(--edge); border-radius:12px; padding:10px}
+  .item.done{opacity:.7; text-decoration:line-through}
+  .pill{font-size:.75rem; color:#0ea5e9; background:#0ea5e925; border:1px solid #0ea5e950; padding:2px 8px; border-radius:999px}
+  .meta{color:var(--muted); font-size:.8rem}
+  .right{margin-left:auto; display:flex; gap:6px}
+  .section-title{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px}
+  .section-title h2{font-size:1rem; margin:0}
+  .footer{margin:16px 0; color:var(--muted); font-size:.85rem; text-align:center}
+  #fx{position:fixed; pointer-events:none; inset:0; z-index:99}
+</style>
+</head>
+<body class="bg-blobs">
+<canvas id="fx"></canvas>
+<div class="wrap">
+  <header>
+    <h1><img src="logo-256.png" alt="logo"/><span class="brand">MaximumChaosCo</span> • Brain Fog Buster</h1>
+    <div class="sub">Watercolor • Sparkly • Rough around the edges</div>
+  </header>
+  <div class="grid">
+    <section class="pane">
+      <div class="section-title"><h2>🧠 Brain Dump</h2>
+        <div class="inline">
+          <select id="dumpTag" class="btn small">
+            <option value="thoughts">thoughts</option>
+            <option value="todo">to‑do</option>
+            <option value="vent">vent</option>
+            <option value="idea">idea</option>
+          </select>
+          <button id="addDump" class="btn primary small">Add</button>
+        </div>
+      </div>
+      <label for="dumpText">Write it out. No judgement. No grammar police.</label>
+      <textarea id="dumpText" placeholder="Type anything in your brain..."></textarea>
+      <div id="dumpList" class="list"></div>
+    </section>
+    <section class="pane">
+      <div class="section-title"><h2>⚡ Tiny Wins</h2>
+        <div class="inline">
+          <input id="winInput" type="text" placeholder="e.g., Took meds, sent email"/>
+          <button id="addWin" class="btn primary small">Add Win</button>
+        </div>
+      </div>
+      <div class="meta">Check them off for dopamine confetti. Reset daily if you want.</div>
+      <div id="winList" class="list"></div>
+      <div class="inline" style="margin-top:8px">
+        <button id="resetWins" class="btn small">Reset wins</button>
+        <button id="exportAll" class="btn small">Backup JSON</button>
+        <input type="file" id="restoreFile" accept="application/json" style="display:none"/>
+        <button id="restoreAll" class="btn small">Restore</button>
+      </div>
+    </section>
+  </div>
+  <div class="footer">Offline • Private • Yours. Install to home screen for the full vibes ✨</div>
+</div>
+<script>
+  if ('serviceWorker' in navigator) { window.addEventListener('load', ()=> navigator.serviceWorker.register('./service-worker.js').catch(()=>{})); }
+  const SKEY = 'bfb_data_v1';
+  const state = JSON.parse(localStorage.getItem(SKEY) || '{"dumps":[],"wins":[]}');
+  const q = (sel)=>document.querySelector(sel);
+  const dumpText = q('#dumpText'); const dumpTag = q('#dumpTag'); const dumpList = q('#dumpList');
+  const winInput = q('#winInput'); const winList = q('#winList');
+  function save(){ localStorage.setItem(SKEY, JSON.stringify(state)); }
+  function timeStr(t){ const d=new Date(t); return d.toLocaleDateString()+' '+d.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'}); }
+  function escapeHtml(s){ return String(s||'').replace(/[&<>\"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;','\\'':'&#39;'}[c]||c)); }
+  function renderDumps(){
+    dumpList.innerHTML = state.dumps.slice().reverse().map((r,i)=>{
+      const tag = `<span class="pill">${r.tag}</span>`;
+      const meta = `<span class="meta">${timeStr(r.t)}</span>`;
+      return `<div class="item" data-idx="${i}" style="align-items:flex-start">
+        <div style="flex:1">
+          <div class="inline">${tag} ${meta}</div>
+          <div style="margin-top:6px; white-space:pre-wrap">${escapeHtml(r.text)}</div>
+        </div>
+        <div class="right">
+          <button class="btn small" data-act="edit">Edit</button>
+          <button class="btn small" data-act="delete">Delete</button>
+        </div>
+      </div>`;
+    }).join('') || '<div class="meta">Nothing yet — your brain is either clear or you’re avoiding it 😜</div>';
+  }
+  function renderWins(){
+    winList.innerHTML = state.wins.map((r,idx)=>{
+      return `<div class="item ${r.done?'done':''}" data-w="${idx}">
+        <input type="checkbox" ${r.done?'checked':''} data-act="toggle"/>
+        <div style="flex:1">${escapeHtml(r.text)}</div>
+        <div class="right">
+          <button class="btn small" data-act="edit">Edit</button>
+          <button class="btn small" data-act="delete">Delete</button>
+        </div>
+      </div>`;
+    }).join('') || '<div class="meta">Add something tiny you did today — seriously, “drank water” counts.</div>';
+  }
+  // Confetti
+  const fx = document.createElement('canvas'); fx.id='fx'; document.body.appendChild(fx);
+  const ctx = fx.getContext('2d'); let px=[]; function resize(){ fx.width=innerWidth; fx.height=innerHeight } window.addEventListener('resize', resize); resize();
+  function confetti(x, y){
+    const colors=['#f472b6','#60a5fa','#34d399','#fbbf24','#a78bfa','#fb7185','#22d3ee'];
+    for(let i=0;i<120;i++){
+      px.push({x,y, vx:(Math.random()-0.5)*6, vy:(Math.random()-1)*6-2, r:Math.random()*3+1, c:colors[Math.floor(Math.random()*colors.length)], a:1});
+    }
+    if(!confetti._running){ confetti._running=true; requestAnimationFrame(tick); }
+  }
+  function tick(){
+    ctx.clearRect(0,0,fx.width,fx.height);
+    px.forEach(p=>{
+      p.vy+=0.08; p.x+=p.vx; p.y+=p.vy; p.a*=0.985;
+      ctx.globalAlpha=p.a; ctx.fillStyle=p.c; ctx.beginPath(); ctx.arc(p.x,p.y,p.r,0,Math.PI*2); ctx.fill();
+    });
+    px=px.filter(p=>p.a>0.05 && p.y<fx.height+10);
+    if(px.length) requestAnimationFrame(tick); else confetti._running=false;
+  }
+  // Events
+  document.getElementById('addDump').addEventListener('click', ()=>{
+    const text = dumpText.value.trim(); if(!text) return;
+    state.dumps.push({text, tag:dumpTag.value, t: Date.now()}); dumpText.value=''; save(); renderDumps();
+  });
+  dumpList.addEventListener('click', (e)=>{
+    const card = e.target.closest('.item'); if(!card) return;
+    const idx = Number(card.getAttribute('data-idx')); const act = e.target.getAttribute('data-act');
+    if(act==='delete'){ state.dumps.splice(state.dumps.length-1-idx,1); save(); renderDumps(); }
+    if(act==='edit'){ 
+      const ref = state.dumps[state.dumps.length-1-idx]; const t = prompt('Edit entry:', ref.text); 
+      if(t!==null){ ref.text = t; save(); renderDumps(); }
+    }
+  });
+  document.getElementById('addWin').addEventListener('click', ()=>{
+    const t = winInput.value.trim(); if(!t) return;
+    state.wins.push({text:t, done:false}); winInput.value=''; save(); renderWins();
+  });
+  document.getElementById('resetWins').addEventListener('click', ()=>{ if(confirm('Reset all wins?')){ state.wins=[]; save(); renderWins(); }});
+  winList.addEventListener('click', (e)=>{
+    const card = e.target.closest('.item'); if(!card) return;
+    const idx = Number(card.getAttribute('data-w')); const act = e.target.getAttribute('data-act');
+    if(act==='toggle'){
+      state.wins[idx].done = !state.wins[idx].done; save(); renderWins();
+      const r = card.getBoundingClientRect(); confetti(r.left+r.width/2, r.top+scrollY+10);
+    } else if(act==='delete'){ state.wins.splice(idx,1); save(); renderWins(); }
+      else if(act==='edit'){ const t = prompt('Edit win:', state.wins[idx].text); if(t!==null){ state.wins[idx].text = t; save(); renderWins(); }}
+  });
+  // Backup/restore
+  document.getElementById('exportAll').addEventListener('click', ()=>{
+    const blob=new Blob([JSON.stringify(state)], {type:'application/json'});
+    const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='brain-fog-buster-backup.json'; a.click();
+  });
+  document.getElementById('restoreAll').addEventListener('click', ()=> document.getElementById('restoreFile').click());
+  document.getElementById('restoreFile').addEventListener('change', (e)=>{
+    const file=e.target.files&&e.target.files[0]; if(!file) return;
+    const reader=new FileReader();
+    reader.onload=()=>{ try{ const data=JSON.parse(String(reader.result)||'\\{}'); if(data.dumps && data.wins){ localStorage.setItem(SKEY, JSON.stringify(data)); location.reload(); } }catch(_){} };
+    reader.readAsText(file);
+  });
+  renderDumps(); renderWins();
+</script>
+</body>
+</html>

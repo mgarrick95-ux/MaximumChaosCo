@@ -1,0 +1,24 @@
+{
+  "name": "MaximumChaosCo \u2022 Brain Fog Buster",
+  "short_name": "Brain Fog",
+  "description": "Colorful, sparkly, rough\u2011edged brain dump + tiny wins checklist. Offline, private, joyful.",
+  "start_url": "./",
+  "scope": ".",
+  "display": "standalone",
+  "background_color": "#0d0b1f",
+  "theme_color": "#6d28d9",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
